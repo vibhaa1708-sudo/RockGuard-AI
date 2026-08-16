@@ -1,16 +1,44 @@
 from pathlib import Path
+import os
 
 import joblib
 import pandas as pd
 import shap
+
 from fastapi import FastAPI
 from pydantic import BaseModel
+from dotenv import load_dotenv
+from supabase import create_client, Client
 
+
+# ==============================
+# LOAD ENVIRONMENT VARIABLES
+# ==============================
+
+load_dotenv()
+
+
+# ==============================
+# SUPABASE CONNECTION
+# ==============================
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
+
+supabase: Client = create_client(
+    SUPABASE_URL,
+    SUPABASE_SECRET_KEY
+)
+
+
+# ==============================
+# FASTAPI APP
+# ==============================
 
 app = FastAPI(
     title="RockGuard AI API",
     description="AI-powered rockfall prediction and explainability system",
-    version="1.1.0"
+    version="1.2.0"
 )
 
 
@@ -98,7 +126,8 @@ def health_check():
     return {
         "status": "healthy",
         "model_loaded": True,
-        "shap_loaded": True
+        "shap_loaded": True,
+        "supabase_connected": True
     }
 
 
@@ -232,6 +261,56 @@ def predict(data: SensorData):
     else:
 
         message = "No significant rockfall risk detected"
+
+
+    # ==============================
+    # SAVE PREDICTION TO SUPABASE
+    # ==============================
+
+    supabase_data = {
+
+        "rainfall": data.rainfall,
+
+        "temperature": data.temperature,
+
+        "humidity": data.humidity,
+
+        "soil_moisture": data.soil_moisture,
+
+        "vibration": data.vibration,
+
+        "deformation": data.deformation,
+
+        "slope_angle": data.slope_angle,
+
+        "slope_height": data.slope_height,
+
+        "blast_activity": data.blast_activity,
+
+        "crack_growth": data.crack_growth,
+
+        "previous_events": data.previous_events,
+
+        "rockfall_probability": probability_percentage,
+
+        "risk_level": risk_level,
+
+        "rockfall_prediction": rockfall_prediction,
+
+        "top_risk_factors": top_risk_factors
+    }
+
+
+    try:
+        supabase.table(
+            "rockfall_predictions"
+        ).insert(
+            supabase_data
+        ).execute()
+
+    except Exception as e:
+        print("SUPABASE ERROR:", e)
+        raise
 
 
     # ==============================
