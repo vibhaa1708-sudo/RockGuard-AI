@@ -2,24 +2,30 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+import shap
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 
 app = FastAPI(
     title="RockGuard AI API",
-    description="AI-powered rockfall prediction and alert system",
-    version="1.0.0"
+    description="AI-powered rockfall prediction and explainability system",
+    version="1.1.0"
 )
 
 
 # ==============================
-# MODEL PATH
+# PROJECT PATH
 # ==============================
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-MODEL_PATH = PROJECT_ROOT / "ml" / "models" / "rockfall_xgboost_model.pkl"
+MODEL_PATH = (
+    PROJECT_ROOT
+    / "ml"
+    / "models"
+    / "rockfall_xgboost_model.pkl"
+)
 
 
 # ==============================
@@ -27,6 +33,8 @@ MODEL_PATH = PROJECT_ROOT / "ml" / "models" / "rockfall_xgboost_model.pkl"
 # ==============================
 
 model = joblib.load(MODEL_PATH)
+
+explainer = shap.TreeExplainer(model)
 
 
 # ==============================
@@ -89,7 +97,8 @@ def health_check():
 
     return {
         "status": "healthy",
-        "model_loaded": True
+        "model_loaded": True,
+        "shap_loaded": True
     }
 
 
@@ -118,14 +127,13 @@ def predict(data: SensorData):
     )
 
 
-    # Get rockfall probability
+    # ==============================
+    # MODEL PREDICTION
+    # ==============================
 
     probability = float(
         model.predict_proba(input_data)[0][1]
     )
-
-
-    # Convert probability to percentage
 
     probability_percentage = round(
         probability * 100,
@@ -133,7 +141,9 @@ def predict(data: SensorData):
     )
 
 
-    # Determine risk level
+    # ==============================
+    # RISK LEVEL
+    # ==============================
 
     if probability >= 0.60:
 
@@ -148,12 +158,85 @@ def predict(data: SensorData):
         risk_level = "LOW"
 
 
-    # Rockfall prediction
+    rockfall_prediction = probability >= 0.30
 
-    rockfall_prediction = (
-        probability >= 0.30
+
+    # ==============================
+    # SHAP EXPLANATION
+    # ==============================
+
+    shap_values = explainer.shap_values(input_data)
+
+    if isinstance(shap_values, list):
+
+        shap_values = shap_values[1]
+
+
+    shap_values = shap_values[0]
+
+
+    explanation = pd.DataFrame({
+        "feature": FEATURES,
+        "shap_value": shap_values
+    })
+
+
+    # Positive SHAP values push prediction
+    # towards rockfall.
+
+    positive_features = explanation[
+        explanation["shap_value"] > 0
+    ].sort_values(
+        by="shap_value",
+        ascending=False
     )
 
+
+    top_risk_factors = (
+        positive_features
+        .head(5)["feature"]
+        .tolist()
+    )
+
+
+    # If there are not enough positive features,
+    # use strongest overall contributors.
+
+    if len(top_risk_factors) == 0:
+
+        top_risk_factors = (
+            explanation.assign(
+                absolute_shap=explanation["shap_value"].abs()
+            )
+            .sort_values(
+                by="absolute_shap",
+                ascending=False
+            )
+            .head(5)["feature"]
+            .tolist()
+        )
+
+
+    # ==============================
+    # RESPONSE MESSAGE
+    # ==============================
+
+    if risk_level == "HIGH":
+
+        message = "Rockfall risk detected"
+
+    elif risk_level == "MEDIUM":
+
+        message = "Moderate rockfall risk detected"
+
+    else:
+
+        message = "No significant rockfall risk detected"
+
+
+    # ==============================
+    # API RESPONSE
+    # ==============================
 
     return {
 
@@ -163,9 +246,7 @@ def predict(data: SensorData):
 
         "rockfall_prediction": rockfall_prediction,
 
-        "message": (
-            "Rockfall risk detected"
-            if rockfall_prediction
-            else "No significant rockfall risk detected"
-        )
+        "top_risk_factors": top_risk_factors,
+
+        "message": message
     }
