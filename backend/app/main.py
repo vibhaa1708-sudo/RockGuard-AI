@@ -4,11 +4,13 @@ import os
 import joblib
 import pandas as pd
 import shap
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from supabase import create_client, Client
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 
 # ==============================
@@ -25,6 +27,11 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
 
+if not SUPABASE_URL or not SUPABASE_SECRET_KEY:
+    raise RuntimeError(
+        "SUPABASE_URL or SUPABASE_SECRET_KEY is missing from .env"
+    )
+
 supabase: Client = create_client(
     SUPABASE_URL,
     SUPABASE_SECRET_KEY
@@ -39,6 +46,13 @@ app = FastAPI(
     title="RockGuard AI API",
     description="AI-powered rockfall prediction and explainability system",
     version="1.2.0"
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -301,7 +315,12 @@ def predict(data: SensorData):
     }
 
 
+    # ==============================
+    # INSERT INTO SUPABASE
+    # ==============================
+
     try:
+
         supabase.table(
             "rockfall_predictions"
         ).insert(
@@ -309,7 +328,9 @@ def predict(data: SensorData):
         ).execute()
 
     except Exception as e:
+
         print("SUPABASE ERROR:", e)
+
         raise
 
 
