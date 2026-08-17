@@ -1,271 +1,169 @@
 import { useState } from "react";
 import "./App.css";
 
-function App() {
-  const [prediction, setPrediction] = useState(null);
+const API_URL = "http://127.0.0.1:8000";
 
+function App() {
   const [formData, setFormData] = useState({
-    rainfall: 35,
-    temperature: 28,
-    humidity: 75,
-    soil_moisture: 65,
-    vibration: 0.8,
-    deformation: 7,
-    slope_angle: 42,
-    slope_height: 120,
-    blast_activity: 1,
-    crack_growth: 5,
-    previous_events: 2,
+    rainfall: "",
+    temperature: "",
+    humidity: "",
+    soil_moisture: "",
+    vibration: "",
+    deformation: "",
+    slope_angle: "",
+    slope_height: "",
+    blast_activity: "",
+    crack_growth: "",
+    previous_events: "",
   });
+
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: Number(e.target.value),
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handlePredict = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+    setError("");
+    setResult(null);
+
     try {
-      const response = await fetch("http://127.0.0.1:8000/predict", {
+      const response = await fetch(`${API_URL}/predict`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(
+          Object.fromEntries(
+            Object.entries(formData).map(([key, value]) => [
+              key,
+              Number(value),
+            ])
+          )
+        ),
       });
+
+      if (!response.ok) {
+        throw new Error("Prediction request failed");
+      }
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error("Prediction failed");
-      }
-
-      setPrediction(data);
-    } catch (error) {
-      console.error(error);
-      alert("Unable to connect to RockGuard AI backend.");
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      setError("Unable to connect to RockGuard AI backend.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="app">
-
-      {/* HEADER */}
-      <header className="navbar">
-        <div className="brand">
-          <div className="brand-icon">⛰</div>
-          <div>
-            <h1>RockGuard AI</h1>
-            <p>Rockfall Prediction & Alert System</p>
-          </div>
+      <header className="header">
+        <div>
+          <h1>RockGuard AI</h1>
+          <p>AI-Powered Rockfall Prediction & Alert System</p>
         </div>
 
         <div className="status">
-          <span className="status-dot"></span>
-          SYSTEM ONLINE
+          <span></span>
+          System Online
         </div>
       </header>
 
-
-      {/* MAIN */}
       <main className="dashboard">
+        <section className="card">
+          <h2>Sensor Data</h2>
+          <p className="subtitle">
+            Enter current mine and environmental conditions.
+          </p>
 
-        {/* HERO */}
-        <section className="hero-section">
-          <div>
-            <p className="eyebrow">AI-POWERED MINE SAFETY</p>
-
-            <h2>
-              Predict rockfall risk
-              <br />
-              <span>before it happens.</span>
-            </h2>
-
-            <p className="hero-text">
-              RockGuard AI analyzes environmental, geological and
-              operational conditions to detect potential rockfall hazards.
-            </p>
-          </div>
-
-          <div className="hero-badge">
-            <span>LIVE</span>
-            <strong>Monitoring</strong>
-            <small>AI risk engine active</small>
-          </div>
-        </section>
-
-
-        {/* SENSOR INPUT */}
-        <section className="panel">
-
-          <div className="panel-heading">
-            <div>
-              <p className="section-label">01 / SENSOR INPUT</p>
-              <h3>Current Site Conditions</h3>
-            </div>
-
-            <span className="input-count">
-              {Object.keys(formData).length} PARAMETERS
-            </span>
-          </div>
-
-
-          <div className="sensor-grid">
-
-            {Object.entries(formData).map(([key, value]) => (
-              <div className="input-group" key={key}>
-
-                <label htmlFor={key}>
-                  {key.replaceAll("_", " ")}
-                </label>
+          <form onSubmit={handleSubmit}>
+            {Object.keys(formData).map((field) => (
+              <div className="input-group" key={field}>
+                <label>{field.replaceAll("_", " ")}</label>
 
                 <input
-                  id={key}
-                  name={key}
                   type="number"
                   step="any"
-                  value={value}
+                  name={field}
+                  value={formData[field]}
                   onChange={handleChange}
+                  required
                 />
-
               </div>
             ))}
 
-          </div>
-
-
-          <button className="predict-button" onClick={handlePredict}>
-            RUN ROCKFALL ANALYSIS
-            <span>→</span>
-          </button>
-
+            <button type="submit" disabled={loading}>
+              {loading ? "Analyzing..." : "Analyze Rockfall Risk"}
+            </button>
+          </form>
         </section>
 
+        <section className="card results">
+          <h2>Prediction Result</h2>
 
-        {/* RESULTS */}
-        {prediction && (
-          <section className="results">
-
-            <div className="panel-heading">
-              <div>
-                <p className="section-label">02 / AI ANALYSIS</p>
-                <h3>Prediction Result</h3>
-              </div>
+          {!result && !error && (
+            <div className="empty-state">
+              <p>Enter sensor data and analyze the risk.</p>
             </div>
+          )}
 
-
-            <div className="result-grid">
-
-              {/* PROBABILITY */}
-              <div className="result-card probability-card">
-                <p>ROCKFALL PROBABILITY</p>
-
-                <div className="probability">
-                  {prediction.rockfall_probability}%
-                </div>
-
-                <div className="progress">
-                  <div
-                    className="progress-fill"
-                    style={{
-                      width: `${prediction.rockfall_probability}%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-
-              {/* RISK */}
-              <div className="result-card">
-                <p>RISK LEVEL</p>
-
-                <div
-                  className={`risk ${prediction.risk_level.toLowerCase()}`}
-                >
-                  {prediction.risk_level}
-                </div>
-
-                <span className="prediction-message">
-                  {prediction.message}
-                </span>
-              </div>
-
-
-              {/* PREDICTION */}
-              <div className="result-card">
-                <p>ROCKFALL PREDICTION</p>
-
-                <div className="prediction-status">
-                  {prediction.rockfall_prediction ? "⚠ DETECTED" : "✓ SAFE"}
-                </div>
-              </div>
-
+          {loading && (
+            <div className="empty-state">
+              <p>AI model is analyzing sensor conditions...</p>
             </div>
+          )}
 
+          {error && (
+            <div className="error">
+              {error}
+            </div>
+          )}
 
-            {/* SHAP */}
-            <div className="risk-factors">
+          {result && (
+            <div className="result-content">
+              <div className="probability">
+                <span>Rockfall Probability</span>
+                <strong>{result.rockfall_probability}%</strong>
+              </div>
 
-              <div>
-                <p className="section-label">EXPLAINABILITY</p>
+              <div className={`risk ${result.risk_level.toLowerCase()}`}>
+                {result.risk_level}
+              </div>
+
+              <p className="message">
+                {result.message}
+              </p>
+
+              <div className="factors">
                 <h3>Top Risk Factors</h3>
-              </div>
 
-              <div className="factor-list">
-
-                {prediction.top_risk_factors.map((factor, index) => (
-                  <div className="factor" key={factor}>
-
-                    <span className="factor-number">
-                      0{index + 1}
-                    </span>
-
-                    <span>
+                <ul>
+                  {result.top_risk_factors.map((factor) => (
+                    <li key={factor}>
                       {factor.replaceAll("_", " ")}
-                    </span>
-
-                    <span className="factor-arrow">↗</span>
-
-                  </div>
-                ))}
-
+                    </li>
+                  ))}
+                </ul>
               </div>
-
             </div>
-
-          </section>
-        )}
-
-
-        {/* EMPTY STATE */}
-        {!prediction && (
-          <section className="empty-state">
-
-            <div className="radar">◉</div>
-
-            <h3>Awaiting Analysis</h3>
-
-            <p>
-              Enter or adjust the sensor parameters above and run
-              the AI analysis to detect rockfall risk.
-            </p>
-
-          </section>
-        )}
-
+          )}
+        </section>
       </main>
-
-
-      {/* FOOTER */}
-      <footer>
-        <span>ROCKGUARD AI</span>
-        <span>AI-BASED ROCKFALL PREDICTION SYSTEM</span>
-        <span>v1.2.0</span>
-      </footer>
-
     </div>
   );
 }
 
 export default App;
+
