@@ -23,11 +23,19 @@
   --red: #ff6b6b;
 
   --sans:
-    Inter, ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 
   --mono:
-    "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    "JetBrains Mono",
+    "SFMono-Regular",
+    Consolas,
+    monospace;
 }
 
 
@@ -45,6 +53,7 @@ html {
 
 body {
   margin: 0;
+
   background:
     radial-gradient(
       circle at 80% 0%,
@@ -59,7 +68,9 @@ body {
     var(--bg);
 
   color: var(--text);
+
   font-family: var(--sans);
+
   -webkit-font-smoothing: antialiased;
 }
 
@@ -98,8 +109,7 @@ button {
 
   border-bottom: 1px solid var(--border);
 
-  background:
-    rgba(7, 16, 13, 0.88);
+  background: rgba(7, 16, 13, 0.88);
 
   backdrop-filter: blur(18px);
 
@@ -108,13 +118,11 @@ button {
   z-index: 100;
 }
 
-
 .brand {
   display: flex;
   align-items: center;
   gap: 13px;
 }
-
 
 .brand-mark {
   width: 38px;
@@ -140,37 +148,38 @@ button {
     0 0 25px rgba(125, 255, 173, 0.08);
 }
 
-
-.brand-text h1 {
+.brand-text h1,
+.brand > div:last-child h1 {
   margin: 0;
 
   font-size: 16px;
+
   letter-spacing: 2px;
+
   font-weight: 750;
 }
 
-
-.brand-text h1 span {
+.brand-text h1 span,
+.brand > div:last-child h1 span {
   color: var(--green);
 }
 
-
-.brand-text p {
+.brand-text p,
+.brand > div:last-child p {
   margin: 2px 0 0;
 
   color: var(--text-dim);
 
   font-size: 8px;
+
   letter-spacing: 1.8px;
 }
-
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 20px;
 }
-
 
 .system-status {
   display: flex;
@@ -180,9 +189,9 @@ button {
   color: var(--text-soft);
 
   font-size: 10px;
+
   letter-spacing: 1.2px;
 }
-
 
 .status-dot {
   width: 7px;
@@ -197,7 +206,6 @@ button {
     0 0 14px rgba(125, 255, 173, 0.5);
 }
 
-
 .api-status {
   padding: 6px 10px;
 
@@ -206,7 +214,9 @@ button {
   color: var(--green);
 
   font-family: var(--mono);
+
   font-size: 9px;
+
   letter-spacing: 1px;
 }
 
@@ -232,7 +242,6 @@ button {
   border-bottom: 1px solid var(--border);
 }
 
-
 .hero-grid {
   display: grid;
 
@@ -245,7 +254,6 @@ button {
   align-items: center;
 }
 
-
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -255,11 +263,11 @@ button {
   font-family: var(--mono);
 
   font-size: 10px;
+
   font-weight: 600;
 
   letter-spacing: 2px;
 }
-
 
 .hero-copy h2 {
   margin: 20px 0;
@@ -275,7 +283,6 @@ button {
   font-weight: 700;
 }
 
-
 .hero-copy h2 span {
   color: transparent;
 
@@ -290,7 +297,6 @@ button {
   -webkit-background-clip: text;
 }
 
-
 .hero-description {
   max-width: 590px;
 
@@ -301,7 +307,6 @@ button {
   line-height: 1.8;
 }
 
-
 .hero-actions {
   display: flex;
   align-items: center;
@@ -311,10 +316,10 @@ button {
   margin-top: 35px;
 }
 
-
 .analysis-button {
   display: inline-flex;
   align-items: center;
+
   gap: 35px;
 
   padding: 15px 18px 15px 20px;
@@ -326,6 +331,7 @@ button {
   color: #06110b;
 
   font-size: 10px;
+
   font-weight: 800;
 
   letter-spacing: 1.5px;
@@ -335,11 +341,9 @@ button {
     box-shadow 0.2s ease;
 }
 
-
 .analysis-button span {
   font-size: 18px;
 }
-
 
 .analysis-button:hover {
   transform: translateY(-2px);
@@ -347,7 +351,6 @@ button {
   box-shadow:
     0 10px 35px rgba(125, 255, 173, 0.16);
 }
-
 
 .hero-meta {
   color: var(--text-dim);
@@ -358,7 +361,6 @@ button {
 
   letter-spacing: 1px;
 }
-
 
 .meta-dot {
   display: inline-block;
@@ -379,7 +381,7 @@ button {
    ========================================================= */
 
 .risk-card {
-  min-height: 360px;
+  min-height: 560px;
 
   padding: 28px;
 
@@ -387,7 +389,7 @@ button {
 
   background:
     radial-gradient(
-      circle at 50% 45%,
+      circle at 50% 40%,
       rgba(125, 255, 173, 0.09),
       transparent 48%
     ),
@@ -405,7 +407,6 @@ button {
   overflow: hidden;
 }
 
-
 .risk-card::before {
   content: "";
 
@@ -420,8 +421,9 @@ button {
   border-radius: 50%;
 
   border: 1px solid rgba(125, 255, 173, 0.15);
-}
 
+  pointer-events: none;
+}
 
 .risk-card-top {
   display: flex;
@@ -436,14 +438,12 @@ button {
   letter-spacing: 1.5px;
 }
 
-
 .risk-live {
   color: var(--green);
 }
 
-
 .risk-display {
-  min-height: 270px;
+  min-height: 390px;
 
   display: flex;
 
@@ -453,78 +453,140 @@ button {
 
   align-items: center;
 
-  gap: 25px;
+  gap: 24px;
+
+  position: relative;
+
+  z-index: 2;
 }
 
+
+/* =========================================================
+   RISK RING — IMPORTANT
+   ========================================================= */
 
 .risk-ring {
   width: 190px;
   height: 190px;
 
+  flex-shrink: 0;
+
   border-radius: 50%;
 
   display: grid;
+
   place-items: center;
+
+  position: relative;
 
   background:
     conic-gradient(
-      var(--green) 0deg,
-      rgba(125, 255, 173, 0.18) 0deg,
-      rgba(125, 255, 173, 0.08) 360deg
+      var(--ring-color, var(--green))
+      var(--risk-progress, 0%),
+      rgba(255, 255, 255, 0.06)
+      var(--risk-progress, 0%)
     );
 
-  position: relative;
-}
+  box-shadow:
+    0 0 30px var(--ring-glow, rgba(125, 255, 173, 0.25)),
+    inset 0 0 25px rgba(255, 255, 255, 0.03);
 
+  transition:
+    background 0.8s ease,
+    box-shadow 0.8s ease,
+    transform 0.3s ease;
+}
 
 .risk-ring::after {
   content: "";
 
   position: absolute;
 
-  inset: 8px;
+  inset: 9px;
 
   border-radius: 50%;
 
   background: #09150f;
 
   border: 1px solid rgba(125, 255, 173, 0.12);
+
+  z-index: 1;
 }
 
+.risk-ring:hover {
+  transform: scale(1.03);
+}
+
+.risk-ring.high {
+  --ring-color: var(--red);
+  --ring-glow: rgba(255, 107, 107, 0.28);
+}
+
+.risk-ring.medium {
+  --ring-color: var(--yellow);
+  --ring-glow: rgba(244, 201, 93, 0.28);
+}
+
+.risk-ring.low {
+  --ring-color: var(--green);
+  --ring-glow: rgba(125, 255, 173, 0.28);
+}
+
+.risk-ring.waiting {
+  --ring-color: rgba(125, 255, 173, 0.22);
+  --ring-glow: rgba(125, 255, 173, 0.08);
+
+  --risk-progress: 25%;
+}
 
 .risk-ring-inner {
   position: relative;
-  z-index: 2;
+
+  z-index: 3;
 
   display: flex;
+
   align-items: baseline;
+
+  justify-content: center;
 }
 
-
 .risk-ring-inner strong {
+  color: var(--text);
+
   font-family: var(--mono);
 
   font-size: 43px;
 
+  font-weight: 500;
+
   letter-spacing: -3px;
 }
-
 
 .risk-ring-inner span {
   margin-left: 3px;
 
-  color: var(--green);
+  color: var(--ring-color, var(--green));
 
   font-family: var(--mono);
 
   font-size: 15px;
+
+  font-weight: 600;
 }
 
+
+/* =========================================================
+   RISK INFO
+   ========================================================= */
 
 .risk-info {
   text-align: center;
-}
 
+  position: relative;
+
+  z-index: 3;
+}
 
 .risk-state {
   display: inline-block;
@@ -540,33 +602,37 @@ button {
   border: 1px solid;
 }
 
-
 .risk-state.high {
   color: var(--red);
+
   border-color: rgba(255, 107, 107, 0.3);
+
   background: rgba(255, 107, 107, 0.07);
 }
 
-
 .risk-state.medium {
   color: var(--yellow);
+
   border-color: rgba(244, 201, 93, 0.3);
+
   background: rgba(244, 201, 93, 0.07);
 }
 
-
 .risk-state.low {
   color: var(--green);
+
   border-color: rgba(125, 255, 173, 0.3);
+
   background: rgba(125, 255, 173, 0.07);
 }
 
-
 .risk-state.waiting {
   color: var(--text-dim);
-  border-color: var(--border);
-}
 
+  border-color: var(--border);
+
+  background: rgba(255, 255, 255, 0.02);
+}
 
 .risk-info p {
   max-width: 270px;
@@ -580,9 +646,9 @@ button {
   line-height: 1.6;
 }
 
-
 .risk-footer {
   display: flex;
+
   justify-content: space-between;
 
   padding-top: 15px;
@@ -596,8 +662,11 @@ button {
   font-size: 8px;
 
   letter-spacing: 1px;
-}
 
+  position: relative;
+
+  z-index: 3;
+}
 
 .risk-footer strong {
   color: var(--green);
@@ -614,15 +683,15 @@ button {
   border-bottom: 1px solid var(--border);
 }
 
-
 .section-heading {
   display: flex;
+
   align-items: end;
+
   justify-content: space-between;
 
   margin-bottom: 28px;
 }
-
 
 .section-heading h3,
 .panel-header h3 {
@@ -633,10 +702,11 @@ button {
   letter-spacing: -1px;
 }
 
-
 .live-indicator {
   display: flex;
+
   align-items: center;
+
   gap: 8px;
 
   color: var(--green);
@@ -647,7 +717,6 @@ button {
 
   letter-spacing: 1px;
 }
-
 
 .live-indicator span {
   width: 6px;
@@ -675,7 +744,6 @@ button {
   gap: 12px;
 }
 
-
 .sensor-card {
   padding: 20px;
 
@@ -693,24 +761,25 @@ button {
     transform 0.2s ease;
 }
 
-
 .sensor-card:hover {
   border-color: var(--border-bright);
 
   transform: translateY(-3px);
 }
 
-
 .sensor-top {
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
 }
 
-
 .sensor-title {
   display: flex;
+
   align-items: center;
+
   gap: 9px;
 
   color: var(--text-soft);
@@ -722,13 +791,11 @@ button {
   letter-spacing: 1.2px;
 }
 
-
 .sensor-icon {
   color: var(--green);
 
   font-size: 14px;
 }
-
 
 .sensor-status {
   color: var(--green);
@@ -736,16 +803,15 @@ button {
   font-size: 8px;
 }
 
-
 .sensor-value {
   display: flex;
+
   align-items: baseline;
 
   gap: 7px;
 
   margin-top: 23px;
 }
-
 
 .sensor-value strong {
   font-family: var(--mono);
@@ -757,13 +823,11 @@ button {
   letter-spacing: -1px;
 }
 
-
 .sensor-value small {
   color: var(--text-dim);
 
   font-size: 9px;
 }
-
 
 .sensor-line {
   height: 2px;
@@ -773,11 +837,11 @@ button {
   background: rgba(125, 255, 173, 0.08);
 }
 
-
 .sensor-line span {
   display: block;
 
   width: 65%;
+
   height: 100%;
 
   background:
@@ -805,7 +869,6 @@ button {
   padding: 75px 0;
 }
 
-
 .panel {
   padding: 30px;
 
@@ -819,15 +882,15 @@ button {
     );
 }
 
-
 .panel-header {
   display: flex;
+
   align-items: flex-start;
+
   justify-content: space-between;
 
   margin-bottom: 30px;
 }
-
 
 .panel-number {
   color: var(--text-dim);
@@ -853,7 +916,6 @@ button {
   gap: 12px;
 }
 
-
 .input-field {
   padding: 13px;
 
@@ -866,16 +928,15 @@ button {
     background 0.2s ease;
 }
 
-
 .input-field:focus-within {
   border-color: rgba(125, 255, 173, 0.35);
 
   background: rgba(125, 255, 173, 0.025);
 }
 
-
 .input-field label {
   display: flex;
+
   align-items: center;
 
   gap: 7px;
@@ -893,13 +954,11 @@ button {
   letter-spacing: 0.8px;
 }
 
-
 .input-icon {
   color: var(--green);
 
   font-size: 11px;
 }
-
 
 .input-field label small {
   margin-left: auto;
@@ -908,7 +967,6 @@ button {
 
   font-size: 7px;
 }
-
 
 .input-field input {
   width: 100%;
@@ -928,11 +986,9 @@ button {
   font-size: 14px;
 }
 
-
 .input-field input::placeholder {
   color: #3e4c45;
 }
-
 
 .input-field input::-webkit-inner-spin-button,
 .input-field input::-webkit-outer-spin-button {
@@ -948,7 +1004,9 @@ button {
   width: 100%;
 
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
 
   margin-top: 18px;
@@ -973,7 +1031,6 @@ button {
     opacity 0.2s ease;
 }
 
-
 .predict-button:hover:not(:disabled) {
   transform: translateY(-2px);
 
@@ -981,13 +1038,11 @@ button {
     0 12px 35px rgba(125, 255, 173, 0.15);
 }
 
-
 .predict-button:disabled {
   cursor: wait;
 
   opacity: 0.65;
 }
-
 
 .button-loader {
   width: 13px;
@@ -1001,7 +1056,6 @@ button {
 
   animation: spin 0.7s linear infinite;
 }
-
 
 @keyframes spin {
   to {
@@ -1018,20 +1072,22 @@ button {
   min-height: 370px;
 
   display: flex;
+
   flex-direction: column;
 
   justify-content: center;
+
   align-items: center;
 
   text-align: center;
 }
-
 
 .ai-symbol {
   width: 72px;
   height: 72px;
 
   display: grid;
+
   place-items: center;
 
   margin-bottom: 22px;
@@ -1050,13 +1106,11 @@ button {
     );
 }
 
-
 .empty-analysis h4 {
   margin: 0 0 8px;
 
   font-size: 17px;
 }
-
 
 .empty-analysis p {
   max-width: 290px;
@@ -1070,9 +1124,9 @@ button {
   line-height: 1.7;
 }
 
-
 .explanation-message {
   display: flex;
+
   gap: 12px;
 
   padding: 14px;
@@ -1080,16 +1134,6 @@ button {
   border: 1px solid var(--border);
 
   background: rgba(125, 255, 173, 0.025);
-}
-
-
-.explanation-icon {
-  color: var(--green);
-}
-
-
-.explanation-message p {
-  margin: 0;
 
   color: var(--text-soft);
 
@@ -1098,11 +1142,17 @@ button {
   line-height: 1.6;
 }
 
+.explanation-message p {
+  margin: 0;
+}
+
+.explanation-icon {
+  color: var(--green);
+}
 
 .factor-list {
   margin-top: 20px;
 }
-
 
 .factor {
   display: grid;
@@ -1119,7 +1169,6 @@ button {
   border-bottom: 1px solid var(--border);
 }
 
-
 .factor-number {
   color: var(--text-dim);
 
@@ -1127,7 +1176,6 @@ button {
 
   font-size: 9px;
 }
-
 
 .factor strong {
   color: var(--text);
@@ -1137,9 +1185,254 @@ button {
   text-transform: capitalize;
 }
 
-
 .impact {
   color: var(--green);
+
+  font-family: var(--mono);
+
+  font-size: 7px;
+
+  letter-spacing: 1px;
+
+  font-style: normal;
+}
+
+
+/* =========================================================
+   SAFETY ALERT
+   ========================================================= */
+
+.safety-alert {
+  margin-top: 24px;
+
+  padding: 18px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 14px;
+
+  border: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.alert-icon {
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border: 1px solid currentColor;
+
+  font-family: var(--mono);
+
+  font-size: 17px;
+}
+
+.alert-content strong {
+  display: block;
+
+  font-family: var(--mono);
+
+  font-size: 10px;
+
+  letter-spacing: 1.4px;
+
+  margin-bottom: 7px;
+}
+
+.alert-content p {
+  margin: 0;
+
+  color: var(--text-soft);
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+.safety-alert.high {
+  color: var(--red);
+
+  border-color: rgba(255, 107, 107, 0.3);
+
+  background: rgba(255, 107, 107, 0.06);
+}
+
+.safety-alert.medium {
+  color: var(--yellow);
+
+  border-color: rgba(244, 201, 93, 0.3);
+
+  background: rgba(244, 201, 93, 0.06);
+}
+
+.safety-alert.low {
+  color: var(--green);
+
+  border-color: rgba(125, 255, 173, 0.25);
+
+  background: rgba(125, 255, 173, 0.05);
+}
+
+
+/* =========================================================
+   DYNAMIC RISK ALERT
+   ========================================================= */
+
+.risk-alert {
+  width: 100%;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding: 13px;
+
+  border: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.02);
+
+  position: relative;
+
+  z-index: 3;
+}
+
+.risk-alert-icon {
+  width: 28px;
+  height: 28px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border: 1px solid currentColor;
+
+  font-family: var(--mono);
+
+  font-size: 13px;
+}
+
+.risk-alert-content {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.risk-alert-content strong {
+  font-family: var(--mono);
+
+  font-size: 9px;
+
+  letter-spacing: 1px;
+}
+
+.risk-alert-content span {
+  color: var(--text-soft);
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.risk-alert.high {
+  color: var(--red);
+
+  border-color: rgba(255, 107, 107, 0.25);
+
+  background: rgba(255, 107, 107, 0.045);
+}
+
+.risk-alert.medium {
+  color: var(--yellow);
+
+  border-color: rgba(244, 201, 93, 0.25);
+
+  background: rgba(244, 201, 93, 0.045);
+}
+
+.risk-alert.low {
+  color: var(--green);
+
+  border-color: rgba(125, 255, 173, 0.2);
+
+  background: rgba(125, 255, 173, 0.035);
+}
+
+
+/* =========================================================
+   DASHBOARD STATISTICS
+   ========================================================= */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 10px;
+
+  margin-top: 40px;
+}
+
+.stat-card {
+  padding: 22px;
+
+  border: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: rgba(125, 255, 173, 0.25);
+
+  transform: translateY(-2px);
+}
+
+.stat-card span {
+  color: var(--text-dim);
+
+  font-family: var(--mono);
+
+  font-size: 8px;
+
+  letter-spacing: 1.4px;
+}
+
+.stat-card strong {
+  color: var(--text);
+
+  font-family: var(--mono);
+
+  font-size: 30px;
+
+  letter-spacing: -1px;
+}
+
+.stat-card small {
+  color: var(--text-dim);
 
   font-family: var(--mono);
 
@@ -1150,15 +1443,377 @@ button {
 
 
 /* =========================================================
+   RISK TREND
+   ========================================================= */
+
+.trend-section {
+  margin-top: 40px;
+}
+
+.trend-chart {
+  height: 260px;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  gap: 14px;
+
+  padding: 25px 20px 15px;
+
+  border: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  overflow-x: auto;
+}
+
+.trend-column {
+  min-width: 55px;
+
+  height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+}
+
+.trend-value {
+  color: var(--text-soft);
+
+  font-family: var(--mono);
+
+  font-size: 8px;
+
+  white-space: nowrap;
+}
+
+.trend-bar-wrapper {
+  width: 28px;
+
+  height: 180px;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  border: 1px solid var(--border);
+}
+
+.trend-bar {
+  width: 100%;
+
+  min-height: 4px;
+
+  transition:
+    height 0.5s ease,
+    opacity 0.2s ease;
+}
+
+.trend-bar:hover {
+  opacity: 0.8;
+}
+
+.trend-bar.low {
+  background: var(--green);
+}
+
+.trend-bar.medium {
+  background: var(--yellow);
+}
+
+.trend-bar.high {
+  background: var(--red);
+}
+
+.trend-label {
+  color: var(--text-dim);
+
+  font-family: var(--mono);
+
+  font-size: 8px;
+}
+
+.trend-chart::-webkit-scrollbar {
+  height: 4px;
+}
+
+.trend-chart::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+
+/* =========================================================
+   SITE STATUS
+   ========================================================= */
+
+.site-status-section {
+  margin-top: 40px;
+}
+
+.site-status-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 10px;
+}
+
+.status-panel {
+  min-height: 150px;
+
+  padding: 20px;
+
+  border: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  display: flex;
+
+  flex-direction: column;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.status-panel:hover {
+  border-color: rgba(125, 255, 173, 0.25);
+
+  transform: translateY(-2px);
+}
+
+.status-panel-top {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 22px;
+}
+
+.status-panel-top span {
+  color: var(--text-dim);
+
+  font-family: var(--mono);
+
+  font-size: 8px;
+
+  letter-spacing: 1.3px;
+}
+
+.status-panel-top .status-dot {
+  width: 6px;
+  height: 6px;
+
+  display: block;
+
+  border-radius: 50%;
+
+  background: var(--green);
+
+  box-shadow:
+    0 0 10px rgba(125, 255, 173, 0.6);
+}
+
+.status-panel strong {
+  color: var(--text);
+
+  font-family: var(--mono);
+
+  font-size: 15px;
+
+  letter-spacing: 1px;
+}
+
+.status-panel p {
+  margin-top: 8px;
+
+  color: var(--text-soft);
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   PREDICTION HISTORY
+   ========================================================= */
+
+.history-section {
+  margin-top: 40px;
+}
+
+.history-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.history-card {
+  display: grid;
+
+  grid-template-columns:
+    1.3fr
+    1fr
+    1fr
+    1.5fr;
+
+  align-items: center;
+
+  gap: 20px;
+
+  padding: 18px 20px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  border: 1px solid var(--border);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.history-card:hover {
+  border-color: rgba(125, 255, 173, 0.28);
+
+  background: rgba(125, 255, 173, 0.025);
+
+  transform: translateY(-2px);
+}
+
+.history-main {
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+}
+
+.history-index {
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border: 1px solid var(--border);
+
+  color: var(--text-dim);
+
+  font-family: var(--mono);
+
+  font-size: 9px;
+}
+
+.history-main > div:last-child {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.history-label,
+.history-probability span,
+.history-prediction span,
+.history-factors span {
+  color: var(--text-dim);
+
+  font-family: var(--mono);
+
+  font-size: 8px;
+
+  letter-spacing: 1.3px;
+
+  text-transform: uppercase;
+}
+
+.history-risk {
+  font-family: var(--mono);
+
+  font-size: 13px;
+
+  letter-spacing: 1px;
+}
+
+.history-probability,
+.history-prediction {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.history-probability strong {
+  color: var(--green);
+
+  font-family: var(--mono);
+
+  font-size: 17px;
+}
+
+.history-prediction strong {
+  color: var(--text-soft);
+
+  font-family: var(--mono);
+
+  font-size: 10px;
+
+  letter-spacing: 0.8px;
+}
+
+.history-factors {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.history-factors strong {
+  color: var(--text-soft);
+
+  font-family: var(--mono);
+
+  font-size: 9px;
+
+  line-height: 1.5;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
    ERROR
    ========================================================= */
 
 .error-banner {
   display: flex;
+
   align-items: center;
+
   gap: 10px;
 
-  margin-bottom: 50px;
+  margin: 30px 0 50px;
 
   padding: 14px 18px;
 
@@ -1184,6 +1839,7 @@ button {
   padding: 25px 0;
 
   display: flex;
+
   justify-content: space-between;
 
   color: var(--text-dim);
@@ -1199,18 +1855,21 @@ button {
 
 
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — TABLET
    ========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
 
-  .hero-grid,
-  .analysis-layout {
+  .hero-grid {
     grid-template-columns: 1fr;
   }
 
   .risk-card {
-    max-width: 600px;
+    max-width: 650px;
+
+    width: 100%;
+
+    margin: 0 auto;
   }
 
   .sensor-grid {
@@ -1218,16 +1877,56 @@ button {
       repeat(2, 1fr);
   }
 
+  .site-status-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .history-card {
+    grid-template-columns:
+      1.2fr
+      0.8fr
+      0.9fr
+      1.4fr;
+  }
 }
 
+
+/* =========================================================
+   RESPONSIVE — 900px
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .analysis-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
 
 @media (max-width: 600px) {
 
   .topbar {
+    height: 68px;
+
     padding: 0 20px;
   }
 
   .system-status {
+    display: none;
+  }
+
+  .api-status {
     display: none;
   }
 
@@ -1247,7 +1946,27 @@ button {
 
   .hero-actions {
     align-items: flex-start;
+
     flex-direction: column;
+  }
+
+  .hero-meta {
+    margin-left: 2px;
+  }
+
+  .risk-card {
+    min-height: 520px;
+
+    padding: 22px;
+  }
+
+  .risk-ring {
+    width: 170px;
+    height: 170px;
+  }
+
+  .risk-ring-inner strong {
+    font-size: 38px;
   }
 
   .sensor-grid,
@@ -1262,7 +1981,9 @@ button {
 
   .section-heading {
     align-items: flex-start;
+
     gap: 20px;
+
     flex-direction: column;
   }
 
@@ -1270,14 +1991,45 @@ button {
     padding: 20px;
   }
 
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .site-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-card {
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+  }
+
+  .history-probability,
+  .history-prediction,
+  .history-factors {
+    padding-left: 50px;
+  }
+
   .factor {
     grid-template-columns:
       30px 1fr;
-
   }
 
   .impact {
     grid-column: 2;
+  }
+
+  .trend-chart {
+    gap: 8px;
+  }
+
+  .trend-column {
+    min-width: 45px;
+  }
+
+  .trend-bar-wrapper {
+    width: 22px;
   }
 
   .footer {
@@ -1288,5 +2040,66 @@ button {
     flex-direction: column;
   }
 
+  .safety-alert {
+    padding: 15px;
+  }
+
+  .alert-content strong {
+    font-size: 9px;
+  }
+
+  .alert-content p {
+    font-size: 10px;
+  }
+
 }
 
+
+/* =========================================================
+   EXTRA SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+  .hero-copy h2 {
+    font-size: 44px;
+  }
+
+  .risk-ring {
+    width: 155px;
+    height: 155px;
+  }
+
+  .risk-ring-inner strong {
+    font-size: 34px;
+  }
+
+  .risk-card {
+    padding: 18px;
+  }
+
+}
+/* ==============================
+   BUTTON TEXT SIZE
+============================== */
+
+/* Hero button */
+.analysis-button {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  border-radius: 12px;
+}
+
+/* Main prediction button */
+.predict-button {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  border-radius: 12px;
+}
+
+/* Button arrow */
+.analysis-button span {
+  font-size: 20px;
+}

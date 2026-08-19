@@ -11,8 +11,6 @@ from supabase import create_client, Client
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
-
 # ==============================
 # LOAD ENVIRONMENT VARIABLES
 # ==============================
@@ -47,9 +45,13 @@ app = FastAPI(
     description="AI-powered rockfall prediction and explainability system",
     version="1.2.0"
 )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -214,7 +216,6 @@ def predict(data: SensorData):
 
         shap_values = shap_values[1]
 
-
     shap_values = shap_values[0]
 
 
@@ -350,3 +351,30 @@ def predict(data: SensorData):
 
         "message": message
     }
+
+
+# ==============================
+# PREDICTION HISTORY
+# ==============================
+
+@app.get("/history")
+def get_history():
+
+    try:
+
+        response = (
+            supabase
+            .table("rockfall_predictions")
+            .select("*")
+            .order("created_at", desc=True)
+            .limit(10)
+            .execute()
+        )
+
+        return response.data
+
+    except Exception as e:
+
+        print("HISTORY ERROR:", e)
+
+        raise

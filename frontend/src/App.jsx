@@ -1,21 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 const API_URL = "http://127.0.0.1:8000";
-
-const fields = [
-  { name: "rainfall", label: "Rainfall", unit: "mm", icon: "◒" },
-  { name: "temperature", label: "Temperature", unit: "°C", icon: "◉" },
-  { name: "humidity", label: "Humidity", unit: "%", icon: "≈" },
-  { name: "soil_moisture", label: "Soil Moisture", unit: "%", icon: "◌" },
-  { name: "vibration", label: "Vibration", unit: "mm/s", icon: "∿" },
-  { name: "deformation", label: "Deformation", unit: "mm", icon: "↕" },
-  { name: "slope_angle", label: "Slope Angle", unit: "°", icon: "∠" },
-  { name: "slope_height", label: "Slope Height", unit: "m", icon: "△" },
-  { name: "blast_activity", label: "Blast Activity", unit: "index", icon: "✦" },
-  { name: "crack_growth", label: "Crack Growth", unit: "mm/day", icon: "⌁" },
-  { name: "previous_events", label: "Previous Events", unit: "count", icon: "◷" },
-];
 
 function App() {
   const [formData, setFormData] = useState({
@@ -35,6 +21,34 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [history, setHistory] = useState([]);
+
+  // ==============================
+  // FETCH PREDICTION HISTORY
+  // ==============================
+
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch(`${API_URL}/history`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch history");
+      }
+
+      const data = await response.json();
+      setHistory(data);
+    } catch (err) {
+      console.error("History error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  // ==============================
+  // HANDLE INPUT CHANGE
+  // ==============================
 
   const handleChange = (e) => {
     setFormData({
@@ -42,6 +56,10 @@ function App() {
       [e.target.name]: e.target.value,
     });
   };
+
+  // ==============================
+  // HANDLE PREDICTION
+  // ==============================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,29 +89,56 @@ function App() {
       }
 
       const data = await response.json();
+
       setResult(data);
+
+      // Refresh history after prediction
+      await fetchHistory();
     } catch (err) {
       console.error(err);
-      setError("Unable to connect to RockGuard AI backend.");
+
+      setError(
+        "Unable to connect to RockGuard AI backend."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const scrollToAnalysis = () => {
-    document
-      .getElementById("analysis-panel")
-      ?.scrollIntoView({ behavior: "smooth" });
+  // ==============================
+  // RISK HELPERS
+  // ==============================
+
+  const getRiskClass = () => {
+    if (!result?.risk_level) return "waiting";
+
+    return result.risk_level.toLowerCase();
   };
+
+  const getRiskProgress = () => {
+    if (!result) return 0;
+
+    const probability =
+      Number(result.rockfall_probability) || 0;
+
+    return Math.min(Math.max(probability, 0), 100);
+  };
+
+  // ==============================
+  // UI
+  // ==============================
 
   return (
     <div className="rockguard-app">
 
-      {/* ================= HEADER ================= */}
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <header className="topbar">
 
         <div className="brand">
+
           <div className="brand-mark">
             ◈
           </div>
@@ -104,9 +149,10 @@ function App() {
             </h1>
 
             <p>
-              OPEN-PIT MINE INTELLIGENCE
+              OPEN-PIT MINE INTELLIGENCE SYSTEM
             </p>
           </div>
+
         </div>
 
         <div className="header-right">
@@ -117,20 +163,22 @@ function App() {
           </div>
 
           <div className="api-status">
-            API / LIVE
+            API ONLINE
           </div>
 
         </div>
 
       </header>
 
-
-      {/* ================= MAIN ================= */}
+      {/* =========================
+          MAIN
+      ========================= */}
 
       <main className="dashboard">
 
-
-        {/* ================= HERO ================= */}
+        {/* =========================
+            HERO
+        ========================= */}
 
         <section className="hero-section">
 
@@ -138,89 +186,97 @@ function App() {
 
             <div className="hero-copy">
 
-              <div className="eyebrow">
-                AI-POWERED ROCKFALL INTELLIGENCE
-              </div>
+              <span className="eyebrow">
+                AI-POWERED ROCKFALL MONITORING
+              </span>
 
               <h2>
-                Predict danger.
+                Predict danger
                 <br />
-                <span>Protect people.</span>
+                <span>before it happens.</span>
               </h2>
 
               <p className="hero-description">
-                RockGuard AI analyzes environmental, geological,
-                and mining conditions to identify rockfall risk
-                before it becomes a safety threat.
+                Real-time environmental intelligence and
+                machine-learning based rockfall risk
+                assessment for open-pit mining operations.
               </p>
 
               <div className="hero-actions">
 
                 <button
                   className="analysis-button"
-                  onClick={scrollToAnalysis}
+                  onClick={() =>
+                    document
+                      .getElementById("analysis-panel")
+                      ?.scrollIntoView({
+                        behavior: "smooth",
+                      })
+                  }
                 >
                   RUN NEW ANALYSIS
-                  <span>→</span>
+
+                  <span>
+                    →
+                  </span>
                 </button>
 
-                <div className="hero-meta">
+                <span className="hero-meta">
                   <span className="meta-dot"></span>
-                  MACHINE LEARNING MONITORING
-                </div>
+                  XGBOOST + SHAP
+                </span>
 
               </div>
 
             </div>
 
-
-            {/* ================= RISK PANEL ================= */}
+            {/* =========================
+                RISK CARD
+            ========================= */}
 
             <div className="risk-card">
 
               <div className="risk-card-top">
-
                 <span>
-                  CURRENT SITE RISK
+                  CURRENT ROCKFALL RISK
                 </span>
 
                 <span className="risk-live">
-                  LIVE
+                  ● LIVE
                 </span>
-
               </div>
 
               <div className="risk-display">
 
-                <div className="risk-ring">
+                {result ? (
 
-                  <div className="risk-ring-inner">
+                  <>
 
-                    {result ? (
-                      <>
+                    <div
+                      className={`risk-ring ${getRiskClass()}`}
+                      style={{
+                        "--risk-progress": `${getRiskProgress()}%`,
+                      }}
+                    >
+
+                      <div className="risk-ring-inner">
+
                         <strong>
                           {result.rockfall_probability}
                         </strong>
 
-                        <span>%</span>
-                      </>
-                    ) : (
-                      <>
-                        <strong>--</strong>
-                        <span>%</span>
-                      </>
-                    )}
+                        <span>
+                          %
+                        </span>
 
-                  </div>
+                      </div>
 
-                </div>
+                    </div>
 
-                <div className="risk-info">
+                    <div className="risk-info">
 
-                  {result ? (
-                    <>
                       <span
-                        className={`risk-state ${result.risk_level.toLowerCase()}`}
+                        className={`risk-state ${getRiskClass()}`}
                       >
                         {result.risk_level} RISK
                       </span>
@@ -228,27 +284,108 @@ function App() {
                       <p>
                         {result.message}
                       </p>
-                    </>
-                  ) : (
-                    <>
+
+                    </div>
+
+                  </>
+
+                ) : (
+
+                  <>
+
+                    <div className="risk-ring waiting">
+
+                      <div className="risk-ring-inner">
+
+                        <strong>
+                          --.-
+                        </strong>
+
+                        <span>
+                          %
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                    <div className="risk-info">
+
                       <span className="risk-state waiting">
                         AWAITING ANALYSIS
                       </span>
 
                       <p>
-                        Run a site analysis to calculate
-                        current rockfall probability.
+                        Run an analysis to calculate
+                        current site risk.
                       </p>
-                    </>
-                  )}
 
-                </div>
+                    </div>
+
+                  </>
+
+                )}
 
               </div>
 
+              {/* =========================
+                  DYNAMIC RISK ALERT
+              ========================= */}
+
+              {result && (
+
+                <div
+                  className={`risk-alert ${getRiskClass()}`}
+                >
+
+                  <div className="risk-alert-icon">
+
+                    {result.risk_level === "HIGH"
+                      ? "⚠"
+                      : result.risk_level === "MEDIUM"
+                      ? "!"
+                      : "✓"}
+
+                  </div>
+
+                  <div className="risk-alert-content">
+
+                    <strong>
+
+                      {result.risk_level === "HIGH"
+                        ? "IMMEDIATE ATTENTION"
+                        : result.risk_level === "MEDIUM"
+                        ? "INCREASED MONITORING"
+                        : "SITE CONDITIONS STABLE"}
+
+                    </strong>
+
+                    <span>
+
+                      {result.risk_level === "HIGH"
+                        ? "Restrict access and inspect high-risk slope zones."
+                        : result.risk_level === "MEDIUM"
+                        ? "Continue monitoring deformation, cracks and vibration."
+                        : "Continue routine monitoring and standard safety protocols."}
+
+                    </span>
+
+                  </div>
+
+                </div>
+
+              )}
+
               <div className="risk-footer">
-                <span>MODEL STATUS</span>
-                <strong>READY</strong>
+
+                <span>
+                  MODEL STATUS
+                </span>
+
+                <strong>
+                  {result ? "ANALYSIS COMPLETE" : "READY"}
+                </strong>
+
               </div>
 
             </div>
@@ -257,30 +394,32 @@ function App() {
 
         </section>
 
-
-        {/* ================= SENSOR NETWORK ================= */}
+        {/* =========================
+            SENSOR OVERVIEW
+        ========================= */}
 
         <section className="section">
 
           <div className="section-heading">
 
             <div>
+
               <span className="eyebrow">
-                MONITORING NETWORK
+                LIVE MONITORING
               </span>
 
               <h3>
-                Site Sensors
+                Sensor Network
               </h3>
+
             </div>
 
-            <div className="live-indicator">
+            <span className="live-indicator">
               <span></span>
-              LIVE INPUT
-            </div>
+              LIVE DATA
+            </span>
 
           </div>
-
 
           <div className="sensor-grid">
 
@@ -288,57 +427,57 @@ function App() {
               title="RAINFALL"
               value={formData.rainfall || "--"}
               unit="mm"
-              icon="◒"
             />
 
             <SensorCard
               title="VIBRATION"
               value={formData.vibration || "--"}
               unit="mm/s"
-              icon="∿"
             />
 
             <SensorCard
               title="DEFORMATION"
               value={formData.deformation || "--"}
               unit="mm"
-              icon="↕"
             />
 
             <SensorCard
               title="CRACK GROWTH"
               value={formData.crack_growth || "--"}
               unit="mm/day"
-              icon="⌁"
             />
 
           </div>
 
         </section>
 
-
-        {/* ================= ANALYSIS ================= */}
+        {/* =========================
+            ANALYSIS
+        ========================= */}
 
         <section
           className="analysis-layout"
           id="analysis-panel"
         >
 
-
-          {/* ================= INPUT PANEL ================= */}
+          {/* =========================
+              INPUT FORM
+          ========================= */}
 
           <div className="analysis-form panel">
 
             <div className="panel-header">
 
               <div>
+
                 <span className="eyebrow">
-                  SENSOR PARAMETERS
+                  INPUT PARAMETERS
                 </span>
 
                 <h3>
-                  Site Analysis
+                  Run Analysis
                 </h3>
+
               </div>
 
               <span className="panel-number">
@@ -347,37 +486,34 @@ function App() {
 
             </div>
 
-
             <form onSubmit={handleSubmit}>
 
               <div className="input-grid">
 
-                {fields.map((field) => (
+                {Object.keys(formData).map((field) => (
 
                   <div
                     className="input-field"
-                    key={field.name}
+                    key={field}
                   >
 
                     <label>
                       <span className="input-icon">
-                        {field.icon}
+                        ◈
                       </span>
 
-                      <span>
-                        {field.label}
-                      </span>
+                      {field.replaceAll("_", " ")}
 
                       <small>
-                        {field.unit}
+                        SENSOR
                       </small>
                     </label>
 
                     <input
                       type="number"
                       step="any"
-                      name={field.name}
-                      value={formData[field.name]}
+                      name={field}
+                      value={formData[field]}
                       onChange={handleChange}
                       placeholder="Enter value"
                       required
@@ -389,23 +525,22 @@ function App() {
 
               </div>
 
-
               <button
                 className="predict-button"
                 type="submit"
                 disabled={loading}
               >
 
+                <span>
+                  {loading
+                    ? "ANALYZING SITE..."
+                    : "ANALYZE ROCKFALL RISK"}
+                </span>
+
                 {loading ? (
-                  <>
-                    <span className="button-loader"></span>
-                    ANALYZING SITE...
-                  </>
+                  <span className="button-loader"></span>
                 ) : (
-                  <>
-                    ANALYZE ROCKFALL RISK
-                    <span>→</span>
-                  </>
+                  <span>→</span>
                 )}
 
               </button>
@@ -414,14 +549,16 @@ function App() {
 
           </div>
 
-
-          {/* ================= AI EXPLANATION ================= */}
+          {/* =========================
+              AI EXPLANATION
+          ========================= */}
 
           <div className="panel explanation">
 
             <div className="panel-header">
 
               <div>
+
                 <span className="eyebrow">
                   MODEL INTELLIGENCE
                 </span>
@@ -429,6 +566,7 @@ function App() {
                 <h3>
                   Why is the model concerned?
                 </h3>
+
               </div>
 
               <span className="panel-number">
@@ -436,7 +574,6 @@ function App() {
               </span>
 
             </div>
-
 
             {!result && (
 
@@ -447,41 +584,39 @@ function App() {
                 </div>
 
                 <h4>
-                  Awaiting site analysis
+                  Awaiting sensor analysis
                 </h4>
 
                 <p>
-                  Submit sensor readings to reveal
-                  the factors influencing the AI prediction.
+                  Complete a sensor analysis to see
+                  the AI-generated risk explanation.
                 </p>
 
               </div>
 
             )}
 
-
             {result && (
 
-              <div className="result-analysis">
+              <>
 
                 <div className="explanation-message">
 
-                  <span className="explanation-icon">
-                    ✦
-                  </span>
+                  <div className="explanation-icon">
+                    ◈
+                  </div>
 
                   <p>
-                    The AI identified these factors as
-                    major contributors to the current
-                    rockfall prediction.
+                    The model identified the following
+                    factors as major contributors to the
+                    current prediction.
                   </p>
 
                 </div>
 
-
                 <div className="factor-list">
 
-                  {result.top_risk_factors.map(
+                  {result.top_risk_factors?.map(
                     (factor, index) => (
 
                       <div
@@ -490,16 +625,16 @@ function App() {
                       >
 
                         <span className="factor-number">
-                          {String(index + 1).padStart(2, "0")}
+                          0{index + 1}
                         </span>
 
                         <strong>
                           {factor.replaceAll("_", " ")}
                         </strong>
 
-                        <span className="impact">
+                        <i className="impact">
                           HIGH IMPACT
-                        </span>
+                        </i>
 
                       </div>
 
@@ -508,7 +643,51 @@ function App() {
 
                 </div>
 
-              </div>
+                {/* =========================
+                    SAFETY ALERT
+                ========================= */}
+
+                <div
+                  className={`safety-alert ${getRiskClass()}`}
+                >
+
+                  <div className="alert-icon">
+
+                    {result.risk_level === "HIGH"
+                      ? "⚠"
+                      : result.risk_level === "MEDIUM"
+                      ? "!"
+                      : "✓"}
+
+                  </div>
+
+                  <div className="alert-content">
+
+                    <strong>
+
+                      {result.risk_level === "HIGH"
+                        ? "IMMEDIATE ATTENTION REQUIRED"
+                        : result.risk_level === "MEDIUM"
+                        ? "INCREASED MONITORING RECOMMENDED"
+                        : "SITE CONDITIONS APPEAR STABLE"}
+
+                    </strong>
+
+                    <p>
+
+                      {result.risk_level === "HIGH"
+                        ? "Restrict access to high-risk zones and inspect slope conditions immediately."
+                        : result.risk_level === "MEDIUM"
+                        ? "Continue continuous monitoring and inspect deformation, cracks and vibration levels."
+                        : "Continue routine monitoring and maintain normal safety protocols."}
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </>
 
             )}
 
@@ -516,22 +695,470 @@ function App() {
 
         </section>
 
+        {/* =========================
+            DASHBOARD STATISTICS
+        ========================= */}
 
-        {/* ================= ERROR ================= */}
+        <section className="stats-grid">
+
+          <div className="stat-card">
+
+            <span>
+              TOTAL ANALYSES
+            </span>
+
+            <strong>
+              {history.length}
+            </strong>
+
+            <small>
+              RECORDED PREDICTIONS
+            </small>
+
+          </div>
+
+          <div className="stat-card">
+
+            <span>
+              HIGH RISK EVENTS
+            </span>
+
+            <strong>
+              {
+                history.filter(
+                  (item) => item.risk_level === "HIGH"
+                ).length
+              }
+            </strong>
+
+            <small>
+              REQUIRE ATTENTION
+            </small>
+
+          </div>
+
+          <div className="stat-card">
+
+            <span>
+              MEDIUM RISK EVENTS
+            </span>
+
+            <strong>
+              {
+                history.filter(
+                  (item) => item.risk_level === "MEDIUM"
+                ).length
+              }
+            </strong>
+
+            <small>
+              MONITOR CLOSELY
+            </small>
+
+          </div>
+
+          <div className="stat-card">
+
+            <span>
+              AVERAGE RISK
+            </span>
+
+            <strong>
+              {history.length > 0
+                ? (
+                    history.reduce(
+                      (sum, item) =>
+                        sum +
+                        Number(
+                          item.rockfall_probability || 0
+                        ),
+                      0
+                    ) / history.length
+                  ).toFixed(1)
+                : "0.0"}
+              %
+            </strong>
+
+            <small>
+              LAST {history.length} ANALYSES
+            </small>
+
+          </div>
+
+        </section>
+
+        {/* =========================
+            RISK TREND
+        ========================= */}
+
+        <section className="section trend-section">
+
+          <div className="section-heading">
+
+            <div>
+
+              <span className="eyebrow">
+                RISK INTELLIGENCE
+              </span>
+
+              <h3>
+                Recent Risk Trend
+              </h3>
+
+            </div>
+
+            <span className="live-indicator">
+              LAST {history.length} ANALYSES
+            </span>
+
+          </div>
+
+          {history.length === 0 ? (
+
+            <div className="empty-analysis">
+
+              <div className="ai-symbol">
+                ◈
+              </div>
+
+              <p>
+                Run predictions to generate
+                the risk trend.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="trend-chart">
+
+              {history
+                .slice()
+                .reverse()
+                .map((item, index) => {
+
+                  const probability =
+                    Number(
+                      item.rockfall_probability
+                    ) || 0;
+
+                  return (
+
+                    <div
+                      className="trend-column"
+                      key={item.id || index}
+                    >
+
+                      <div className="trend-value">
+                        {probability}%
+                      </div>
+
+                      <div className="trend-bar-wrapper">
+
+                        <div
+                          className={`trend-bar ${
+                            item.risk_level?.toLowerCase()
+                          }`}
+                          style={{
+                            height: `${Math.max(
+                              probability,
+                              4
+                            )}%`,
+                          }}
+                        />
+
+                      </div>
+
+                      <div className="trend-label">
+                        {index + 1}
+                      </div>
+
+                    </div>
+
+                  );
+
+                })}
+
+            </div>
+
+          )}
+
+        </section>
+
+        {/* =========================
+            SITE STATUS
+        ========================= */}
+
+        <section className="section site-status-section">
+
+          <div className="section-heading">
+
+            <div>
+
+              <span className="eyebrow">
+                OPERATIONAL MONITORING
+              </span>
+
+              <h3>
+                Site Status
+              </h3>
+
+            </div>
+
+            <span className="live-indicator">
+              ● SYSTEM LIVE
+            </span>
+
+          </div>
+
+          <div className="site-status-grid">
+
+            <div className="status-panel">
+
+              <div className="status-panel-top">
+
+                <span>
+                  SYSTEM STATUS
+                </span>
+
+                <i className="status-dot"></i>
+
+              </div>
+
+              <strong>
+                OPERATIONAL
+              </strong>
+
+              <p>
+                RockGuard AI prediction engine is online
+                and ready for analysis.
+              </p>
+
+            </div>
+
+            <div className="status-panel">
+
+              <div className="status-panel-top">
+
+                <span>
+                  AI MODEL
+                </span>
+
+                <i className="status-dot"></i>
+
+              </div>
+
+              <strong>
+                XGBOOST
+              </strong>
+
+              <p>
+                Machine-learning model with SHAP
+                explainability enabled.
+              </p>
+
+            </div>
+
+            <div className="status-panel">
+
+              <div className="status-panel-top">
+
+                <span>
+                  DATABASE
+                </span>
+
+                <i className="status-dot"></i>
+
+              </div>
+
+              <strong>
+                SUPABASE
+              </strong>
+
+              <p>
+                Prediction records are being stored
+                for historical analysis.
+              </p>
+
+            </div>
+
+            <div className="status-panel">
+
+              <div className="status-panel-top">
+
+                <span>
+                  SENSOR NETWORK
+                </span>
+
+                <i className="status-dot"></i>
+
+              </div>
+
+              <strong>
+                ACTIVE
+              </strong>
+
+              <p>
+                Environmental parameters are ready
+                for risk assessment.
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* =========================
+            PREDICTION HISTORY
+        ========================= */}
+
+        <section className="section history-section">
+
+          <div className="section-heading">
+
+            <div>
+
+              <span className="eyebrow">
+                RECENT ANALYSES
+              </span>
+
+              <h3>
+                Prediction History
+              </h3>
+
+            </div>
+
+            <span className="live-indicator">
+              {history.length} RECORDS
+            </span>
+
+          </div>
+
+          {history.length === 0 ? (
+
+            <div className="empty-analysis">
+
+              <div className="ai-symbol">
+                ◈
+              </div>
+
+              <p>
+                No prediction history available yet.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="history-list">
+
+              {history.map((item, index) => (
+
+                <div
+                  className="history-card"
+                  key={item.id || index}
+                >
+
+                  <div className="history-main">
+
+                    <div className="history-index">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
+                    <div>
+
+                      <span className="history-label">
+                        RISK ASSESSMENT
+                      </span>
+
+                      <strong className="history-risk">
+                        {item.risk_level}
+                      </strong>
+
+                    </div>
+
+                  </div>
+
+                  <div className="history-probability">
+
+                    <span>
+                      ROCKFALL PROBABILITY
+                    </span>
+
+                    <strong>
+                      {item.rockfall_probability}%
+                    </strong>
+
+                  </div>
+
+                  <div className="history-prediction">
+
+                    <span>
+                      PREDICTION
+                    </span>
+
+                    <strong>
+                      {item.rockfall_prediction
+                        ? "ROCKFALL DETECTED"
+                        : "NO ROCKFALL"}
+                    </strong>
+
+                  </div>
+
+                  <div className="history-factors">
+
+                    <span>
+                      TOP RISK FACTORS
+                    </span>
+
+                    <strong>
+
+                      {Array.isArray(
+                        item.top_risk_factors
+                      )
+                        ? item.top_risk_factors
+                            .slice(0, 3)
+                            .map((factor) =>
+                              factor.replaceAll(
+                                "_",
+                                " "
+                              )
+                            )
+                            .join(" • ")
+                        : "N/A"}
+
+                    </strong>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </section>
+
+        {/* =========================
+            ERROR
+        ========================= */}
 
         {error && (
 
           <div className="error-banner">
-            <span>⚠</span>
-            {error}
+            ⚠ {error}
           </div>
 
         )}
 
       </main>
 
-
-      {/* ================= FOOTER ================= */}
+      {/* =========================
+          FOOTER
+      ========================= */}
 
       <footer className="footer">
 
@@ -540,11 +1167,7 @@ function App() {
         </span>
 
         <span>
-          AI-BASED ROCKFALL PREDICTION & ALERT SYSTEM
-        </span>
-
-        <span>
-          v1.0
+          AI-BASED ROCKFALL PREDICTION SYSTEM
         </span>
 
       </footer>
@@ -554,9 +1177,15 @@ function App() {
 }
 
 
-/* ================= SENSOR CARD ================= */
+// ==============================
+// SENSOR CARD
+// ==============================
 
-function SensorCard({ title, value, unit, icon }) {
+function SensorCard({
+  title,
+  value,
+  unit,
+}) {
 
   return (
 
@@ -564,24 +1193,21 @@ function SensorCard({ title, value, unit, icon }) {
 
       <div className="sensor-top">
 
-        <div className="sensor-title">
+        <span className="sensor-title">
 
           <span className="sensor-icon">
-            {icon}
+            ◈
           </span>
 
-          <span>
-            {title}
-          </span>
+          {title}
 
-        </div>
+        </span>
 
         <span className="sensor-status">
           ●
         </span>
 
       </div>
-
 
       <div className="sensor-value">
 
@@ -594,7 +1220,6 @@ function SensorCard({ title, value, unit, icon }) {
         </small>
 
       </div>
-
 
       <div className="sensor-line">
         <span></span>
