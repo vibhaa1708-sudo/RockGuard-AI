@@ -1,26 +1,27 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 import joblib
 import pandas as pd
 import shap
-from fastapi import FastAPI
-from pydantic import BaseModel
+
 from dotenv import load_dotenv
-from supabase import create_client, Client
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, field_validator
+from supabase import create_client, Client
 
 
-# ==============================
+# =========================================================
 # LOAD ENVIRONMENT VARIABLES
-# ==============================
+# =========================================================
 
 load_dotenv()
 
 
-# ==============================
+# =========================================================
 # SUPABASE CONNECTION
-# ==============================
+# =========================================================
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
@@ -36,15 +37,20 @@ supabase: Client = create_client(
 )
 
 
-# ==============================
+# =========================================================
 # FASTAPI APP
-# ==============================
+# =========================================================
 
 app = FastAPI(
     title="RockGuard AI API",
     description="AI-powered rockfall prediction and explainability system",
-    version="1.2.0"
+    version="1.3.0"
 )
+
+
+# =========================================================
+# CORS
+# =========================================================
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,9 +64,9 @@ app.add_middleware(
 )
 
 
-# ==============================
+# =========================================================
 # PROJECT PATH
-# ==============================
+# =========================================================
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -72,18 +78,40 @@ MODEL_PATH = (
 )
 
 
-# ==============================
+# =========================================================
 # LOAD MODEL
-# ==============================
+# =========================================================
+
+if not MODEL_PATH.exists():
+    raise FileNotFoundError(
+        f"Model file not found at: {MODEL_PATH}"
+    )
 
 model = joblib.load(MODEL_PATH)
 
 explainer = shap.TreeExplainer(model)
 
 
-# ==============================
-# FEATURES
-# ==============================
+# =========================================================
+# SECTORS
+# =========================================================
+
+SECTORS = [
+    "A1",
+    "A2",
+    "A3",
+    "B1",
+    "B2",
+    "B3",
+    "C1",
+    "C2",
+    "C3"
+]
+
+
+# =========================================================
+# FEATURES USED BY ML MODEL
+# =========================================================
 
 FEATURES = [
     "rainfall",
@@ -100,11 +128,13 @@ FEATURES = [
 ]
 
 
-# ==============================
+# =========================================================
 # INPUT DATA MODEL
-# ==============================
+# =========================================================
 
 class SensorData(BaseModel):
+
+    sector: str
 
     rainfall: float
     temperature: float
@@ -118,23 +148,37 @@ class SensorData(BaseModel):
     crack_growth: float
     previous_events: float
 
+    @field_validator("sector")
+    @classmethod
+    def validate_sector(cls, value):
 
-# ==============================
+        value = value.upper().strip()
+
+        if value not in SECTORS:
+            raise ValueError(
+                "Invalid sector. Use A1-A3, B1-B3 or C1-C3."
+            )
+
+        return value
+
+
+# =========================================================
 # ROOT ENDPOINT
-# ==============================
+# =========================================================
 
 @app.get("/")
 def root():
 
     return {
         "message": "RockGuard AI API is running",
-        "status": "online"
+        "status": "online",
+        "version": "1.3.0"
     }
 
 
-# ==============================
+# =========================================================
 # HEALTH CHECK
-# ==============================
+# =========================================================
 
 @app.get("/health")
 def health_check():
@@ -147,12 +191,29 @@ def health_check():
     }
 
 
-# ==============================
+# =========================================================
+# GET AVAILABLE SECTORS
+# =========================================================
+
+@app.get("/sectors")
+def get_sectors():
+
+    return {
+        "sectors": SECTORS,
+        "total": len(SECTORS)
+    }
+
+
+# =========================================================
 # PREDICTION ENDPOINT
-# ==============================
+# =========================================================
 
 @app.post("/predict")
 def predict(data: SensorData):
+
+    # =====================================================
+    # PREPARE MODEL INPUT
+    # =====================================================
 
     input_data = pd.DataFrame(
         [[
@@ -172,9 +233,9 @@ def predict(data: SensorData):
     )
 
 
-    # ==============================
+    # =====================================================
     # MODEL PREDICTION
-    # ==============================
+    # =====================================================
 
     probability = float(
         model.predict_proba(input_data)[0][1]
@@ -186,9 +247,9 @@ def predict(data: SensorData):
     )
 
 
-    # ==============================
+    # =====================================================
     # RISK LEVEL
-    # ==============================
+    # =====================================================
 
     if probability >= 0.60:
 
@@ -203,12 +264,13 @@ def predict(data: SensorData):
         risk_level = "LOW"
 
 
+    # Rockfall prediction threshold
     rockfall_prediction = probability >= 0.30
 
 
-    # ==============================
+    # =====================================================
     # SHAP EXPLANATION
-    # ==============================
+    # =====================================================
 
     shap_values = explainer.shap_values(input_data)
 
@@ -219,14 +281,21 @@ def predict(data: SensorData):
     shap_values = shap_values[0]
 
 
-    explanation = pd.DataFrame({
-        "feature": FEATURES,
-        "shap_value": shap_values
-    })
+    # =====================================================
+    # CREATE EXPLANATION DATAFRAME
+    # =====================================================
+
+    explanation = pd.DataFrame(
+        {
+            "feature": FEATURES,
+            "shap_value": shap_values
+        }
+    )
 
 
-    # Positive SHAP values push prediction
-    # towards rockfall.
+    # =====================================================
+    # FIND POSITIVE RISK CONTRIBUTORS
+    # =====================================================
 
     positive_features = explanation[
         explanation["shap_value"] > 0
@@ -243,13 +312,15 @@ def predict(data: SensorData):
     )
 
 
-    # If there are not enough positive features,
-    # use strongest overall contributors.
+    # =====================================================
+    # FALLBACK IF NO POSITIVE FEATURES
+    # =====================================================
 
     if len(top_risk_factors) == 0:
 
         top_risk_factors = (
-            explanation.assign(
+            explanation
+            .assign(
                 absolute_shap=explanation["shap_value"].abs()
             )
             .sort_values(
@@ -261,28 +332,74 @@ def predict(data: SensorData):
         )
 
 
-    # ==============================
+    # =====================================================
     # RESPONSE MESSAGE
-    # ==============================
+    # =====================================================
 
     if risk_level == "HIGH":
 
-        message = "Rockfall risk detected"
+        message = (
+            "High rockfall risk detected. "
+            "Immediate attention is recommended."
+        )
 
     elif risk_level == "MEDIUM":
 
-        message = "Moderate rockfall risk detected"
+        message = (
+            "Moderate rockfall risk detected. "
+            "Increase monitoring of the affected sector."
+        )
 
     else:
 
-        message = "No significant rockfall risk detected"
+        message = (
+            "No significant rockfall risk detected. "
+            "Site conditions appear stable."
+        )
 
 
-    # ==============================
+    # =====================================================
+    # SECTOR-SPECIFIC MESSAGE
+    # =====================================================
+
+    sector_message = (
+        f"Risk assessment completed for sector {data.sector}."
+    )
+
+
+    # =====================================================
+    # SECTOR-SPECIFIC RECOMMENDATION
+    # =====================================================
+
+    if risk_level == "HIGH":
+
+        sector_action = (
+            f"Restrict access to sector {data.sector} "
+            "and inspect high-risk slope zones immediately."
+        )
+
+    elif risk_level == "MEDIUM":
+
+        sector_action = (
+            f"Increase monitoring in sector {data.sector} "
+            "and inspect deformation, cracks and vibration."
+        )
+
+    else:
+
+        sector_action = (
+            f"Sector {data.sector} appears stable. "
+            "Continue routine monitoring."
+        )
+
+
+    # =====================================================
     # SAVE PREDICTION TO SUPABASE
-    # ==============================
+    # =====================================================
 
     supabase_data = {
+
+        "sector": data.sector,
 
         "rainfall": data.rainfall,
 
@@ -316,9 +433,9 @@ def predict(data: SensorData):
     }
 
 
-    # ==============================
+    # =====================================================
     # INSERT INTO SUPABASE
-    # ==============================
+    # =====================================================
 
     try:
 
@@ -335,11 +452,13 @@ def predict(data: SensorData):
         raise
 
 
-    # ==============================
+    # =====================================================
     # API RESPONSE
-    # ==============================
+    # =====================================================
 
     return {
+
+        "sector": data.sector,
 
         "rockfall_probability": probability_percentage,
 
@@ -349,13 +468,17 @@ def predict(data: SensorData):
 
         "top_risk_factors": top_risk_factors,
 
-        "message": message
+        "message": message,
+
+        "sector_message": sector_message,
+
+        "sector_action": sector_action
     }
 
 
-# ==============================
+# =========================================================
 # PREDICTION HISTORY
-# ==============================
+# =========================================================
 
 @app.get("/history")
 def get_history():

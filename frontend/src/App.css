@@ -2103,3 +2103,533 @@ button {
 .analysis-button span {
   font-size: 20px;
 }
+/* ==============================
+   SECTOR / ZONE SELECTOR
+============================== */
+
+.sector-field {
+  grid-column: 1 / -1;
+}
+
+.sector-field select {
+  width: 100%;
+  padding: 10px 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--text);
+
+  font-family: var(--mono);
+  font-size: 15px;
+
+  cursor: pointer;
+}
+
+.sector-field select option {
+  background: #0d1b16;
+  color: var(--text);
+}
+
+
+/* ==============================
+   SECTOR RESULT
+============================== */
+
+.sector-result {
+  margin-top: 12px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 10px;
+
+  border: 1px solid var(--border);
+
+  color: var(--green);
+
+  background: rgba(125, 255, 173, 0.04);
+
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+/* =========================================================
+   ROCKGUARD AI
+   SECTOR / ZONE MAP — IMPROVED UI
+   ========================================================= */
+
+.sector-selection {
+  margin: 30px 0 34px;
+  padding: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.015)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 18px 45px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.sector-selection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.sector-selection-header h4 {
+  margin: 6px 0 7px;
+  font-size: 21px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+}
+
+.sector-selection-header p {
+  margin: 0;
+  max-width: 600px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+/* Selected sector badge */
+
+.selected-sector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  padding: 11px 15px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 13px;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 1.1px;
+
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.selected-sector strong {
+  font-size: 15px;
+  letter-spacing: 0;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   MAP CONTAINER
+   ========================================================= */
+
+.sector-grid {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+
+  padding: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  overflow: hidden;
+}
+
+/* Mine-map grid lines */
+
+.sector-grid::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    );
+
+  background-size: 45px 45px;
+}
+
+
+/* =========================================================
+   SECTOR BUTTON
+   ========================================================= */
+
+.sector-button {
+  position: relative;
+  z-index: 1;
+
+  min-height: 118px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 18px;
+
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.018)
+    );
+
+  color: inherit;
+
+  cursor: pointer;
+  text-align: left;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* Inner boundary */
+
+.sector-button::after {
+  content: "";
+
+  position: absolute;
+  inset: 7px;
+
+  border: 1px dashed rgba(255, 255, 255, 0.055);
+  border-radius: 10px;
+
+  pointer-events: none;
+
+  transition: border-color 0.2s ease;
+}
+
+
+/* Hover */
+
+.sector-button:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(255, 255, 255, 0.22);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.025)
+    );
+
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.sector-button:hover::after {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+
+/* =========================================================
+   SECTOR CODE
+   ========================================================= */
+
+.sector-code {
+  position: relative;
+  z-index: 2;
+
+  font-size: 27px;
+  line-height: 1;
+
+  font-weight: 800;
+
+  letter-spacing: -0.8px;
+
+  color: rgba(255, 255, 255, 0.92);
+
+  transition: transform 0.2s ease;
+}
+
+
+/* =========================================================
+   SECTOR DESCRIPTION
+   ========================================================= */
+
+.sector-label {
+  position: relative;
+  z-index: 2;
+
+  font-size: 9px;
+
+  font-weight: 650;
+
+  letter-spacing: 1.25px;
+
+  text-transform: uppercase;
+
+  color: rgba(255, 255, 255, 0.4);
+}
+
+
+/* =========================================================
+   SELECTED SECTOR
+   ========================================================= */
+
+.sector-button.selected {
+  border-color: rgba(255, 255, 255, 0.42);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.115),
+      rgba(255, 255, 255, 0.035)
+    );
+
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 12px 32px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.sector-button.selected::after {
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+.sector-button.selected .sector-code {
+  transform: translateY(-2px);
+}
+
+
+/* Selected indicator */
+
+.sector-button.selected::before {
+  content: "";
+
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.08),
+    0 0 14px rgba(255, 255, 255, 0.7);
+
+  z-index: 3;
+}
+
+
+/* =========================================================
+   ZONE ROW STRUCTURE
+   ========================================================= */
+
+/* Top / middle / bottom rows */
+
+.sector-button:nth-child(-n + 3) {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+.sector-button:nth-child(n + 7) {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+
+/* =========================================================
+   LEGEND
+   ========================================================= */
+
+.sector-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 22px;
+
+  margin-top: 18px;
+  padding-top: 17px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.065);
+}
+
+.sector-legend span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  letter-spacing: 1px;
+
+  color: rgba(255, 255, 255, 0.5);
+}
+
+
+/* =========================================================
+   LEGEND DOTS
+   ========================================================= */
+
+.legend-dot {
+  display: block;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+}
+
+.legend-dot.low {
+  background: #55d98b;
+
+  box-shadow:
+    0 0 10px rgba(85, 217, 139, 0.55);
+}
+
+.legend-dot.medium {
+  background: #f2b84b;
+
+  box-shadow:
+    0 0 10px rgba(242, 184, 75, 0.55);
+}
+
+.legend-dot.high {
+  background: #ef6262;
+
+  box-shadow:
+    0 0 10px rgba(239, 98, 98, 0.55);
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .sector-selection {
+    padding: 21px;
+  }
+
+  .sector-selection-header {
+    align-items: flex-start;
+  }
+
+  .sector-button {
+    min-height: 105px;
+    padding: 15px;
+  }
+
+  .sector-code {
+    font-size: 23px;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+  .sector-selection {
+    margin: 22px 0 26px;
+    padding: 17px;
+    border-radius: 18px;
+  }
+
+  .sector-selection-header {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .sector-selection-header h4 {
+    font-size: 18px;
+  }
+
+  .sector-selection-header p {
+    font-size: 12px;
+  }
+
+  .selected-sector {
+    align-self: flex-start;
+  }
+
+  .sector-grid {
+    gap: 7px;
+    padding: 8px;
+    border-radius: 15px;
+  }
+
+  .sector-button {
+    min-height: 88px;
+    padding: 13px;
+    border-radius: 12px;
+  }
+
+  .sector-button::after {
+    inset: 5px;
+    border-radius: 8px;
+  }
+
+  .sector-code {
+    font-size: 20px;
+  }
+
+  .sector-label {
+    font-size: 7px;
+  }
+
+  .sector-button.selected::before {
+    top: 10px;
+    right: 10px;
+    width: 6px;
+    height: 6px;
+  }
+
+  .sector-legend {
+    gap: 12px 18px;
+  }
+
+  .sector-legend span {
+    font-size: 8px;
+  }
+}

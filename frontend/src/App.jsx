@@ -4,6 +4,10 @@ import "./App.css";
 const API_URL = "http://127.0.0.1:8000";
 
 function App() {
+  // =========================================================
+  // FORM DATA
+  // =========================================================
+
   const [formData, setFormData] = useState({
     rainfall: "",
     temperature: "",
@@ -18,14 +22,97 @@ function App() {
     previous_events: "",
   });
 
+  // =========================================================
+  // SECTOR SELECTION
+  // =========================================================
+
+  const [selectedSector, setSelectedSector] = useState("A1");
+
+  /*
+    IMPORTANT:
+
+    These are NOT fixed geographical GPS boundaries.
+
+    They are logical monitoring sectors used by RockGuard AI
+    to identify WHERE the sensor readings belong within the mine.
+
+    The actual mine can be divided differently depending on
+    the mine layout and sensor deployment.
+  */
+
+  const sectors = [
+    {
+      id: "A1",
+      row: "NORTH",
+      position: "WEST",
+      description: "North-west monitoring zone",
+    },
+    {
+      id: "A2",
+      row: "NORTH",
+      position: "CENTER",
+      description: "North-central monitoring zone",
+    },
+    {
+      id: "A3",
+      row: "NORTH",
+      position: "EAST",
+      description: "North-east monitoring zone",
+    },
+    {
+      id: "B1",
+      row: "CENTRAL",
+      position: "WEST",
+      description: "Central-west monitoring zone",
+    },
+    {
+      id: "B2",
+      row: "CENTRAL",
+      position: "CENTER",
+      description: "Central monitoring zone",
+    },
+    {
+      id: "B3",
+      row: "CENTRAL",
+      position: "EAST",
+      description: "Central-east monitoring zone",
+    },
+    {
+      id: "C1",
+      row: "SOUTH",
+      position: "WEST",
+      description: "South-west monitoring zone",
+    },
+    {
+      id: "C2",
+      row: "SOUTH",
+      position: "CENTER",
+      description: "South-central monitoring zone",
+    },
+    {
+      id: "C3",
+      row: "SOUTH",
+      position: "EAST",
+      description: "South-east monitoring zone",
+    },
+  ];
+
+  const currentSector =
+    sectors.find((sector) => sector.id === selectedSector) ||
+    sectors[0];
+
+  // =========================================================
+  // STATE
+  // =========================================================
+
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [history, setHistory] = useState([]);
 
-  // ==============================
+  // =========================================================
   // FETCH PREDICTION HISTORY
-  // ==============================
+  // =========================================================
 
   const fetchHistory = async () => {
     try {
@@ -46,9 +133,9 @@ function App() {
     fetchHistory();
   }, []);
 
-  // ==============================
+  // =========================================================
   // HANDLE INPUT CHANGE
-  // ==============================
+  // =========================================================
 
   const handleChange = (e) => {
     setFormData({
@@ -57,9 +144,24 @@ function App() {
     });
   };
 
-  // ==============================
+  // =========================================================
+  // HANDLE SECTOR CHANGE
+  // =========================================================
+
+  const handleSectorChange = (sector) => {
+    setSelectedSector(sector);
+
+    /*
+      Clear previous result because the user has moved
+      to a different monitoring sector.
+    */
+    setResult(null);
+    setError("");
+  };
+
+  // =========================================================
   // HANDLE PREDICTION
-  // ==============================
+  // =========================================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,17 +176,33 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(
-          Object.fromEntries(
+        body: JSON.stringify({
+          /*
+            Sector is selected from the UI.
+
+            User does NOT manually type A1/B2/etc.
+          */
+          sector: selectedSector,
+
+          ...Object.fromEntries(
             Object.entries(formData).map(([key, value]) => [
               key,
               Number(value),
             ])
-          )
-        ),
+          ),
+        }),
       });
 
       if (!response.ok) {
+        const errorData = await response
+          .json()
+          .catch(() => null);
+
+        console.error(
+          "Prediction API error:",
+          errorData
+        );
+
         throw new Error("Prediction failed");
       }
 
@@ -92,10 +210,9 @@ function App() {
 
       setResult(data);
 
-      // Refresh history after prediction
       await fetchHistory();
     } catch (err) {
-      console.error(err);
+      console.error("Prediction error:", err);
 
       setError(
         "Unable to connect to RockGuard AI backend."
@@ -105,9 +222,9 @@ function App() {
     }
   };
 
-  // ==============================
+  // =========================================================
   // RISK HELPERS
-  // ==============================
+  // =========================================================
 
   const getRiskClass = () => {
     if (!result?.risk_level) return "waiting";
@@ -124,16 +241,16 @@ function App() {
     return Math.min(Math.max(probability, 0), 100);
   };
 
-  // ==============================
+  // =========================================================
   // UI
-  // ==============================
+  // =========================================================
 
   return (
     <div className="rockguard-app">
 
-      {/* =========================
+      {/* =====================================================
           HEADER
-      ========================= */}
+      ===================================================== */}
 
       <header className="topbar">
 
@@ -144,6 +261,7 @@ function App() {
           </div>
 
           <div className="brand-text">
+
             <h1>
               ROCKGUARD <span>AI</span>
             </h1>
@@ -151,6 +269,7 @@ function App() {
             <p>
               OPEN-PIT MINE INTELLIGENCE SYSTEM
             </p>
+
           </div>
 
         </div>
@@ -170,15 +289,15 @@ function App() {
 
       </header>
 
-      {/* =========================
+      {/* =====================================================
           MAIN
-      ========================= */}
+      ===================================================== */}
 
       <main className="dashboard">
 
-        {/* =========================
+        {/* ===================================================
             HERO
-        ========================= */}
+        =================================================== */}
 
         <section className="hero-section">
 
@@ -219,6 +338,7 @@ function App() {
                   <span>
                     →
                   </span>
+
                 </button>
 
                 <span className="hero-meta">
@@ -230,13 +350,14 @@ function App() {
 
             </div>
 
-            {/* =========================
+            {/* =================================================
                 RISK CARD
-            ========================= */}
+            ================================================= */}
 
             <div className="risk-card">
 
               <div className="risk-card-top">
+
                 <span>
                   CURRENT ROCKFALL RISK
                 </span>
@@ -244,6 +365,7 @@ function App() {
                 <span className="risk-live">
                   ● LIVE
                 </span>
+
               </div>
 
               <div className="risk-display">
@@ -328,9 +450,9 @@ function App() {
 
               </div>
 
-              {/* =========================
+              {/* =================================================
                   DYNAMIC RISK ALERT
-              ========================= */}
+              ================================================= */}
 
               {result && (
 
@@ -383,7 +505,9 @@ function App() {
                 </span>
 
                 <strong>
-                  {result ? "ANALYSIS COMPLETE" : "READY"}
+                  {result
+                    ? "ANALYSIS COMPLETE"
+                    : "READY"}
                 </strong>
 
               </div>
@@ -394,9 +518,9 @@ function App() {
 
         </section>
 
-        {/* =========================
+        {/* ===================================================
             SENSOR OVERVIEW
-        ========================= */}
+        =================================================== */}
 
         <section className="section">
 
@@ -451,18 +575,18 @@ function App() {
 
         </section>
 
-        {/* =========================
+        {/* ===================================================
             ANALYSIS
-        ========================= */}
+        =================================================== */}
 
         <section
           className="analysis-layout"
           id="analysis-panel"
         >
 
-          {/* =========================
+          {/* =================================================
               INPUT FORM
-          ========================= */}
+          ================================================= */}
 
           <div className="analysis-form panel">
 
@@ -488,6 +612,168 @@ function App() {
 
             <form onSubmit={handleSubmit}>
 
+              {/* =================================================
+                  SECTOR SELECTION
+              ================================================= */}
+
+              <div className="sector-selection">
+
+                <div className="sector-selection-header">
+
+                  <div>
+
+                    <span className="eyebrow">
+                      MINE ZONE LOCALIZATION
+                    </span>
+
+                    <h4>
+                      Select Monitoring Sector
+                    </h4>
+
+                    <p>
+                      Select the area of the mine where
+                      these sensor readings were recorded.
+                      The sector is assigned by the
+                      monitoring layout — you do not need
+                      to enter it manually.
+                    </p>
+
+                  </div>
+
+                  <div className="selected-sector">
+
+                    SELECTED
+
+                    <strong>
+                      {selectedSector}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                {/* =================================================
+                    SECTOR MAP
+                ================================================= */}
+
+                <div className="sector-map-wrapper">
+
+                  <div className="sector-map-label north">
+                    NORTH / HIGH WALL SIDE
+                  </div>
+
+                  <div className="sector-grid">
+
+                    {sectors.map((sector) => (
+
+                      <button
+                        type="button"
+                        key={sector.id}
+                        className={`sector-button ${
+                          selectedSector === sector.id
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          handleSectorChange(
+                            sector.id
+                          )
+                        }
+                        title={sector.description}
+                      >
+
+                        <span className="sector-code">
+                          {sector.id}
+                        </span>
+
+                        <span className="sector-label">
+                          {sector.row}
+                        </span>
+
+                        <span className="sector-position">
+                          {sector.position}
+                        </span>
+
+                      </button>
+
+                    ))}
+
+                  </div>
+
+                  <div className="sector-map-label south">
+                    SOUTH / PIT FLOOR SIDE
+                  </div>
+
+                </div>
+
+
+                {/* =================================================
+                    SELECTED SECTOR INFORMATION
+                ================================================= */}
+
+                <div className="sector-info">
+
+                  <div className="sector-info-marker">
+                    ◈
+                  </div>
+
+                  <div>
+
+                    <span>
+                      MONITORING LOCATION
+                    </span>
+
+                    <strong>
+                      SECTOR {selectedSector}
+                    </strong>
+
+                    <p>
+                      {currentSector.description}.
+                      Sensor readings entered below will
+                      be associated with this sector.
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                {/* =================================================
+                    LEGEND
+                ================================================= */}
+
+                <div className="sector-legend">
+
+                  <span>
+                    <i className="legend-dot low"></i>
+                    LOW RISK
+                  </span>
+
+                  <span>
+                    <i className="legend-dot medium"></i>
+                    MEDIUM RISK
+                  </span>
+
+                  <span>
+                    <i className="legend-dot high"></i>
+                    HIGH RISK
+                  </span>
+
+                  <span className="sector-legend-note">
+                    Sector layout represents logical
+                    monitoring zones
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              {/* =================================================
+                  SENSOR INPUTS
+              ================================================= */}
+
               <div className="input-grid">
 
                 {Object.keys(formData).map((field) => (
@@ -498,6 +784,7 @@ function App() {
                   >
 
                     <label>
+
                       <span className="input-icon">
                         ◈
                       </span>
@@ -507,6 +794,7 @@ function App() {
                       <small>
                         SENSOR
                       </small>
+
                     </label>
 
                     <input
@@ -525,6 +813,11 @@ function App() {
 
               </div>
 
+
+              {/* =================================================
+                  PREDICT BUTTON
+              ================================================= */}
+
               <button
                 className="predict-button"
                 type="submit"
@@ -532,15 +825,23 @@ function App() {
               >
 
                 <span>
+
                   {loading
                     ? "ANALYZING SITE..."
-                    : "ANALYZE ROCKFALL RISK"}
+                    : `ANALYZE ${selectedSector} RISK`}
+
                 </span>
 
                 {loading ? (
+
                   <span className="button-loader"></span>
+
                 ) : (
-                  <span>→</span>
+
+                  <span>
+                    →
+                  </span>
+
                 )}
 
               </button>
@@ -549,9 +850,10 @@ function App() {
 
           </div>
 
-          {/* =========================
+
+          {/* =================================================
               AI EXPLANATION
-          ========================= */}
+          ================================================= */}
 
           <div className="panel explanation">
 
@@ -600,6 +902,10 @@ function App() {
 
               <>
 
+                {/* =================================================
+                    SELECTED SECTOR RESULT
+                ================================================= */}
+
                 <div className="explanation-message">
 
                   <div className="explanation-icon">
@@ -607,12 +913,25 @@ function App() {
                   </div>
 
                   <p>
-                    The model identified the following
+
+                    Analysis completed for{" "}
+
+                    <strong>
+                      {result.sector || selectedSector}
+                    </strong>
+
+                    . The model identified the following
                     factors as major contributors to the
                     current prediction.
+
                   </p>
 
                 </div>
+
+
+                {/* =================================================
+                    FACTORS
+                ================================================= */}
 
                 <div className="factor-list">
 
@@ -629,7 +948,10 @@ function App() {
                         </span>
 
                         <strong>
-                          {factor.replaceAll("_", " ")}
+                          {factor.replaceAll(
+                            "_",
+                            " "
+                          )}
                         </strong>
 
                         <i className="impact">
@@ -643,9 +965,10 @@ function App() {
 
                 </div>
 
-                {/* =========================
+
+                {/* =================================================
                     SAFETY ALERT
-                ========================= */}
+                ================================================= */}
 
                 <div
                   className={`safety-alert ${getRiskClass()}`}
@@ -695,9 +1018,10 @@ function App() {
 
         </section>
 
-        {/* =========================
+
+        {/* ===================================================
             DASHBOARD STATISTICS
-        ========================= */}
+        =================================================== */}
 
         <section className="stats-grid">
 
@@ -717,6 +1041,7 @@ function App() {
 
           </div>
 
+
           <div className="stat-card">
 
             <span>
@@ -724,11 +1049,14 @@ function App() {
             </span>
 
             <strong>
+
               {
                 history.filter(
-                  (item) => item.risk_level === "HIGH"
+                  (item) =>
+                    item.risk_level === "HIGH"
                 ).length
               }
+
             </strong>
 
             <small>
@@ -737,6 +1065,7 @@ function App() {
 
           </div>
 
+
           <div className="stat-card">
 
             <span>
@@ -744,11 +1073,14 @@ function App() {
             </span>
 
             <strong>
+
               {
                 history.filter(
-                  (item) => item.risk_level === "MEDIUM"
+                  (item) =>
+                    item.risk_level === "MEDIUM"
                 ).length
               }
+
             </strong>
 
             <small>
@@ -757,6 +1089,7 @@ function App() {
 
           </div>
 
+
           <div className="stat-card">
 
             <span>
@@ -764,6 +1097,7 @@ function App() {
             </span>
 
             <strong>
+
               {history.length > 0
                 ? (
                     history.reduce(
@@ -776,7 +1110,9 @@ function App() {
                     ) / history.length
                   ).toFixed(1)
                 : "0.0"}
+
               %
+
             </strong>
 
             <small>
@@ -787,9 +1123,10 @@ function App() {
 
         </section>
 
-        {/* =========================
+
+        {/* ===================================================
             RISK TREND
-        ========================= */}
+        =================================================== */}
 
         <section className="section trend-section">
 
@@ -870,7 +1207,9 @@ function App() {
                       </div>
 
                       <div className="trend-label">
-                        {index + 1}
+
+                        {item.sector || "—"}
+
                       </div>
 
                     </div>
@@ -885,9 +1224,10 @@ function App() {
 
         </section>
 
-        {/* =========================
+
+        {/* ===================================================
             SITE STATUS
-        ========================= */}
+        =================================================== */}
 
         <section className="section site-status-section">
 
@@ -936,6 +1276,7 @@ function App() {
 
             </div>
 
+
             <div className="status-panel">
 
               <div className="status-panel-top">
@@ -959,6 +1300,7 @@ function App() {
 
             </div>
 
+
             <div className="status-panel">
 
               <div className="status-panel-top">
@@ -981,6 +1323,7 @@ function App() {
               </p>
 
             </div>
+
 
             <div className="status-panel">
 
@@ -1009,9 +1352,10 @@ function App() {
 
         </section>
 
-        {/* =========================
+
+        {/* ===================================================
             PREDICTION HISTORY
-        ========================= */}
+        =================================================== */}
 
         <section className="section history-section">
 
@@ -1069,7 +1413,10 @@ function App() {
                     <div>
 
                       <span className="history-label">
-                        RISK ASSESSMENT
+
+                        SECTOR{" "}
+                        {item.sector || "—"}
+
                       </span>
 
                       <strong className="history-risk">
@@ -1079,6 +1426,7 @@ function App() {
                     </div>
 
                   </div>
+
 
                   <div className="history-probability">
 
@@ -1091,6 +1439,7 @@ function App() {
                     </strong>
 
                   </div>
+
 
                   <div className="history-prediction">
 
@@ -1105,6 +1454,7 @@ function App() {
                     </strong>
 
                   </div>
+
 
                   <div className="history-factors">
 
@@ -1142,9 +1492,10 @@ function App() {
 
         </section>
 
-        {/* =========================
+
+        {/* ===================================================
             ERROR
-        ========================= */}
+        =================================================== */}
 
         {error && (
 
@@ -1156,9 +1507,10 @@ function App() {
 
       </main>
 
-      {/* =========================
+
+      {/* =====================================================
           FOOTER
-      ========================= */}
+      ===================================================== */}
 
       <footer className="footer">
 
@@ -1177,16 +1529,15 @@ function App() {
 }
 
 
-// ==============================
+// ============================================================
 // SENSOR CARD
-// ==============================
+// ============================================================
 
 function SensorCard({
   title,
   value,
   unit,
 }) {
-
   return (
 
     <div className="sensor-card">
@@ -1232,4 +1583,3 @@ function SensorCard({
 
 
 export default App;
-
